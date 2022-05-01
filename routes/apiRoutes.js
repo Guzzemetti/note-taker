@@ -4,30 +4,19 @@ const { sendfile, sendFile } = require('express/lib/response');
 const path = require('path');
 const router = require('express').Router();
 const db = require('../db/db.json');
+const { v4: uuidv4 } = require('uuid');
 const {
     readFromFile,
     readAndAppend,
     writeToFile,
   } = require('../helper/fsUtils');
 
-
-// // set up get/post/delete methods as responses to the database
-// router.post('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, "../public/notes.html"));
-// });
-
-// // export to the router
-// module.exports = router;
-
-
-
-
-// GET Route for retrieving all the tips
+// GET Route for retrieving all the notes
 router.get('/notes', (req, res) => {
   readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
 
-// GET Route for a specific tip
+// GET Route for a specific note
 router.get('/notes/:id', (req, res) => {
   const notes = req.params.noteId;
   readFromFile('./db/db.json')
@@ -40,7 +29,7 @@ router.get('/notes/:id', (req, res) => {
     });
 });
 
-// DELETE Route for a specific tip
+// DELETE Route for a specific note
 router.delete('/notes/:id', (req, res) => {
   const notes = req.params.noteId;
   readFromFile('./db/db.json')
@@ -61,16 +50,16 @@ router.delete('/notes/:id', (req, res) => {
 router.post('/notes', (req, res) => {
   console.log(req.body);
 
-  const { noteTitle, noteText } = req.body;
+  const { title, text } = req.body;
 
   if (req.body) {
-    const newTip = {
-      noteTitle,
-      noteText,
-      nodeId: uuidv4(),
+    const newNote = {
+    title,
+    text,
+    nodeId: uuidv4(),
     };
 
-    readAndAppend(newTip, './db/db.json');
+    readAndAppend(newNote, './db/db.json');
     res.json(`Note added successfully`);
   } else {
     res.error('Error in adding note');
