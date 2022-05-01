@@ -1,9 +1,4 @@
-// require router and db items needed
-const { route } = require('express/lib/application');
-const { sendfile, sendFile } = require('express/lib/response');
-const path = require('path');
 const router = require('express').Router();
-const db = require('../db/db.json');
 const { v4: uuidv4 } = require('uuid');
 const {
     readFromFile,
@@ -18,11 +13,11 @@ router.get('/notes', (req, res) => {
 
 // GET Route for a specific note
 router.get('/notes/:id', (req, res) => {
-  const notes = req.params.noteId;
+  const noteId = req.params.id;
   readFromFile('./db/db.json')
     .then((data) => JSON.parse(data))
     .then((json) => {
-      const result = json.filter((note) => note.noteId === notes);
+      const result = json.filter((note) => note.id === noteId);
       return result.length > 0
         ? res.json(result)
         : res.json('No note with that ID');
@@ -31,18 +26,16 @@ router.get('/notes/:id', (req, res) => {
 
 // DELETE Route for a specific note
 router.delete('/notes/:id', (req, res) => {
-  const notes = req.params.noteId;
+  const noteId = req.params.id;
   readFromFile('./db/db.json')
     .then((data) => JSON.parse(data))
     .then((json) => {
       // Make a new array of all tips except the one with the ID provided in the URL
-      const result = json.filter((note) => note.noteId !== notes);
-
+      const result = json.filter((note) => note.id !== noteId);
       // Save that array to the filesystem
       writeToFile('./db/db.json', result);
-
       // Respond to the DELETE request
-      res.json(`Item ${note} has been deleted 🗑️`);
+      res.json(`Item ${noteId} has been deleted 🗑️`);
     });
 });
 
@@ -56,7 +49,7 @@ router.post('/notes', (req, res) => {
     const newNote = {
     title,
     text,
-    nodeId: uuidv4(),
+    id: uuidv4(),
     };
 
     readAndAppend(newNote, './db/db.json');
